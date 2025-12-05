@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>House Price Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            padding: 5px;
+            width: 150px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>House Price Predictor</h1>
+    <p>Enter property features:</p>
+
+    <label>Overall Quality:
+        <input type="number" id="OverallQual" value="7">
+    </label>
+    <label>Ground Living Area (sqft):
+        <input type="number" id="GrLivArea" value="1800">
+    </label>
+    <label>Garage Cars:
+        <input type="number" id="GarageCars" value="2">
+    </label>
+    <label>Year Built:
+        <input type="number" id="YearBuilt" value="2010">
+    </label>
+    <label>Total Basement SF:
+        <input type="number" id="TotalBsmtSF" value="900">
+    </label>
+
+    <button onclick="predictPrice()">Predict</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function predictPrice() {
+            const data = {
+                OverallQual: parseFloat(document.getElementById("OverallQual").value),
+                GrLivArea: parseFloat(document.getElementById("GrLivArea").value),
+                GarageCars: parseFloat(document.getElementById("GarageCars").value),
+                YearBuilt: parseFloat(document.getElementById("YearBuilt").value),
+                TotalBsmtSF: parseFloat(document.getElementById("TotalBsmtSF").value)
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.prediction) {
+                    document.getElementById("result").innerText =
+                        "Predicted Sale Price: $" + result.prediction.toFixed(2);
+                } else if (result.error) {
+                    document.getElementById("result").innerText =
+                        "Error: " + result.error;
+                }
+
+            } catch (err) {
+                document.getElementById("result").innerText =
+                    "Request failed: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
